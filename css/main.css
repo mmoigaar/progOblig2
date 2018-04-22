@@ -1,7 +1,5 @@
 *{
     margin: 0 auto;
-    padding: 0;
-    border: 0;
     list-style: none;
     box-sizing: border-box;
     text-decoration: none;
@@ -16,11 +14,18 @@ body{
     flex-direction: column;
     justify-content: center;
 }
+form{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
 #counterBox{
     height: 50px;
-    display: inline block;
+    display: inline-block;
     padding: 10px;
     margin-bottom: 10px;
+}
+form{
+  margin-top: 10px;
 }
 table{
     border-collapse: collapse;

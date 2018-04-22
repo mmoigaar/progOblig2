@@ -4,22 +4,28 @@ class Validation{
     private $existingStudent = false;
     private $courseCheck = false;
     private $STCheck = true;
-    
+
     //Put attributes into function as variables instead, probably.
-    
-    function checkDuplicate(){   
-      
+
+    function validate($input){
+
+        $newStudent = true;
+        $existingStudent = false;
+        $courseCheck = false;
+        $STCheck = true;
+
+
         $fStudents = fopen("students.csv", 'r') or die ('Failed!');
         $fCourses = fopen("courses.csv", 'r') or die ('Failed!');
         $fStudTakes = fopen("studTakes.csv", 'r') or die ('Failed!');
-        $fInput = fopen("input.csv", 'r') or die ('Failed!');
-            
+        $fInput = fopen($input, 'r') or die ('Failed!');
+
         $input_data = fgetcsv($fInput);
         $studArray = [$input_data[0], $input_data[1], $input_data[2], strtotime($input_data[3])];
         $courseArray = [$input_data[4], $input_data[6], $input_data[8]];
         $newStudTakes = [$input_data[0], $courseArray[0], $input_data[5], $input_data[9]];
-        
-        while (!feof($fStudents)){ 
+
+        while (!feof($fStudents)){
             $student = fgetcsv($fStudents);
 
             if ($student == $studArray){
@@ -53,7 +59,7 @@ class Validation{
             }
             if(feof($fCourses) && $this->courseCheck == false){
                 echo "Course not found. Make sure your input file has correct values.";
-            }    
+            }
         }
         while (!feof($fStudTakes)){
             $studTakes = fgetcsv($fStudTakes);

@@ -11,43 +11,50 @@ class Student{
     protected $GPA;
     protected $status;
 
-    function __construct($id, $fName, $surname, $bDate){
+    function __construct($id, $fName, $surname, $bDate, $new){
         $this->id = $id;
         $this->fName = $fName;
         $this->surname = $surname;
         $this->bDate = $bDate;
 
-        $returnArray = $this->calcGPA($id);
+        if($new == false){
+          $returnArray = $this->calcGPA($id);
+          $this->GPA = $returnArray[0];
+          $this->taken = $returnArray[1];
+          $this->failed = $returnArray[2];
 
-        $this->GPA = $returnArray[0];
-        $this->taken = $returnArray[1];
-        $this->failed = $returnArray[2];
+          switch($this->GPA){
+              case $this->GPA >= 0 && $this->GPA < 2:
+                  $this->status = 'Unsatisfactory';
+                  break;
+              case $this->GPA >= 2 && $this->GPA < 3:
+                  $this->status = 'Satisfactory';
+                  break;
+              case $this->GPA >= 3 && $this->GPA < 4:
+                  $this->status = 'Honour';
+                  break;
+              case $this->GPA >= 4:
+                  $this->status = 'High  honour';
+                  break;
+          }
 
-        switch($this->GPA){
-            case $this->GPA >= 0 && $this->GPA < 2:
-                $this->status = 'Unsatisfactory';
-                break;
-            case $this->GPA >= 2 && $this->GPA < 3:
-                $this->status = 'Satisfactory';
-                break;
-            case $this->GPA >= 3 && $this->GPA < 4:
-                $this->status = 'Honour';
-                break;
-            case $this->GPA >= 4:
-                $this->status = 'High  honour';
-                break;
+          $_SESSION["sessionTableData"][] = get_object_vars($this);
+          $_SESSION["studCount"]++;
         }
 
-        $_SESSION["sessionTableData"][] = get_object_vars($this);
-        $_SESSION["studCount"]++;
+        if($new == true){
+          $stud = array_slice(get_object_vars($this), 0, 4);
+          $this->newStudent($stud);
+        }
+
     } //End function 'construct'
 
     function pullStudents(){
         $fileStud = fopen("students.csv", 'r') or die ('Failed!');
-        while (!feof($fileStud)){
+        while (!feof($fileStud)){ //somehow endless loop
             $stud = fgetcsv($fileStud);
             if(is_array($stud)){
-                $newStudent = new Student($stud[0], $stud[1], $stud[2], $stud[3]);
+                $newStudent = new Student($stud[0], $stud[1], $stud[2], $stud[3], false);
             }
         }
     } //End function 'pullStudents'
@@ -112,9 +119,9 @@ class Student{
         }
     } //End function 'calcGPA'
 
-    function newStudent(){
+    function newStudent($stud){
         $fh = fopen('students.csv', 'a') or die ('Failed!');
-        $text = implode(",", get_object_vars($this))."\n";
+        $text = implode(",", $stud)."\n";
         fwrite ($fh, $text) or die ("Failed!");
     } //End function newStudent
 } //End class 'Student'
