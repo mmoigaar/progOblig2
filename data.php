@@ -38,6 +38,21 @@
       }
 
       function validate($input){
+        // Open input file and check content
+        $file_input = fopen($input, 'r') or die ('Failed!');
+
+        // Maybe do some tolowercase thing here
+        $input_data = fgetcsv($file_input);
+
+        $allowed = ["/^\d{6}$/", "/^[a-z]{1-20}$/i", "/^[a-z]{1-20}$/i", "/^[0-3]\d-(([0][1-9])|([1][0-2]))-\d{4}$/", "/^[a-z]{3}\d{4}$/i", "/^\d{4}$/", "/^(Spring){1}|(Fall){1}$/i", "/^[a-z ,.'-]+$/i", "/^10|5|7\.5|0$/", "/^A|B|C|D|E|F$/i"];
+
+        // This doesn't even run.
+        for($i = 0; $i < count($input_data); $i++){
+          echo "hello";
+          if(!$input_data[$i].match($allowed[$i])){
+            echo $input_data[$i]." does not match ".$allowed[$i]."<br>";
+          }
+        }
 
         //Predefined values
         $newStudent = null;
@@ -49,11 +64,8 @@
         $file_students = fopen("students.csv", 'r') or die ('Failed!');
         $file_courses = fopen("courses.csv", 'r') or die ('Failed!');
         $file_studTakes = fopen("studTakes.csv", 'r') or die ('Failed!');
-        $file_input = fopen($input, 'r') or die ('Failed!');
 
         // Distribute input data between different arrays to compare values against their respective target files, and converts date to unix timestamp
-        $input_data = fgetcsv($file_input);
-
         $student_array = [$input_data[0], $input_data[1], $input_data[2], strval(strtotime($input_data[3]))];
         $course_array = [$input_data[4], $input_data[6], $input_data[8]];
         $newStudTakes = [$input_data[0], $course_array[0], $input_data[5], $input_data[9]];
@@ -125,7 +137,7 @@
             $STCheck = false;
             echo "Error: duplicate registration attempt. Course completion has already been registered.";
           }
-          if (feof($file_studTakes) && $STCheck == true){
+          if (feof($file_studTakes) && $STCheck == true && $courseCheck == true){
             require_once "class_studTakes.php";
             $newStudTakesIns = new StudTakes($newStudTakes[0], $newStudTakes[1], $newStudTakes[2], $newStudTakes[3]);
             echo $newStudTakesIns;
