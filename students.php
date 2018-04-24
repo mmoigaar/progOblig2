@@ -16,16 +16,16 @@
   </header>
 
   <?php
-      session_start();
-      $_SESSION["sessionTableData"] = array();
-      $_SESSION["studCount"] = 0;
-      include 'class_student.php';
-      Student::pullStudents();
-      $data = $_SESSION['sessionTableData'];
+    session_start();
+    $_SESSION["sessionTableData"] = array();
+    $_SESSION["studCount"] = 0;
+    include 'class_student.php';
+    Student::pullStudents();
+    $data = $_SESSION['sessionTableData'];
 
-      uasort($data, function($a, $b){
-        return $b['GPA'] <=> $a['GPA'];
-      }); //fuck yes I love my life
+    uasort($data, function($a, $b){
+      return $b['GPA'] <=> $a['GPA'];
+    }); //fuck yes I love my life
   ?>
 
   <div id="container">
