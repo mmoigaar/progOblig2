@@ -31,27 +31,53 @@
         $file_ext = explode('.', $file['name']);
         $file_ext = strtolower(end($file_ext));
 
-        // Check if last elemnent of the array equals 'csv'
+        // Check if last elemnent of the array equals 'csv'.
         if ($file_ext === 'csv') {
           validate($file['tmp_name']);
         }
       }
 
       function validate($input){
-        // Open input file and check content
+        // Read input file and convert content to array
         $file_input = fopen($input, 'r') or die ('Failed!');
+        $input_data = fgetcsv($file_input); //Should probably work for multi-line files. FIXFIXFIXFIXFIXFIX
 
-        // Maybe do some tolowercase thing here
-        $input_data = fgetcsv($file_input);
+        // Define the allowed array structure and element values
+        $allowed = ["/^\d{6}$/", // ID
+         "/^[a-z]{1,20}$/i", // First name
+         "/^[a-z]{1,20}$/i", // Last name
+         "/^[0-3]\d-(([0][1-9])|([1][0-2]))-\d{4}$/", // Birth date
+         "/^[a-z]{3}\d{4}$/i", // Course code
+         "/^\d{4}$/", // Year
+         "/^(Spring){1}|(Fall){1}$/i", // Semester
+         "/^[a-z ,.'-]+$/i", // Instructor name
+         "/^10|5|7\.5|0$/", // Credits
+         "/^A|B|C|D|E|F$/i"]; // Grade
 
-        $allowed = ["/^\d{6}$/", "/^[a-z]{1-20}$/i", "/^[a-z]{1-20}$/i", "/^[0-3]\d-(([0][1-9])|([1][0-2]))-\d{4}$/", "/^[a-z]{3}\d{4}$/i", "/^\d{4}$/", "/^(Spring){1}|(Fall){1}$/i", "/^[a-z ,.'-]+$/i", "/^10|5|7\.5|0$/", "/^A|B|C|D|E|F$/i"];
+        // Output strings for a better user experience and ease of input correction.
+        $alert_allowed = ["6 digit student ID",
+          "the student's first name",
+          "the student's last name",
+          "the student's birth date",
+          "course code",
+          "course year",
+          "course semester",
+          "instructor name",
+          "credits taken",
+          "grade received"];
 
-        // This doesn't even run.
-        for($i = 0; $i < count($input_data); $i++){
-          echo "hello";
-          if(!$input_data[$i].match($allowed[$i])){
-            echo $input_data[$i]." does not match ".$allowed[$i]."<br>";
+        // Checks for correct amount of array elements and matches input array with $allowed. Ends script if invalid data is uncovered.
+        if(count($input_data) == 10){
+          for($i = 0; $i < count($input_data); $i++){
+            if(!preg_match($allowed[$i], $input_data[$i])){
+              //echo $input_data[$i]." does not match ".$allowed[$i]."<br>";
+              echo "<br> Error: invalid input data. \"".$input_data[$i]."\" should consist of ".$alert_allowed[$i]." only.";
+              die;
+            }
           }
+        } else{
+          Echo "<br>Error: Input data should consist of exactly 10 elements.";
+          die;
         }
 
         //Predefined values
@@ -113,9 +139,9 @@
           $courses = fgetcsv($file_courses);
 
           // Returns $courseCheck = true if $course_array matches any of the courses in courses.csv
-          if (($courses[0] === $course_array[0]) &&
-              ($courses[3] === $course_array[1]) &&
-              ($courses[5] === $course_array[2])){
+          if (($courses[0] == $course_array[0]) &&
+              ($courses[3] == $course_array[1]) &&
+              ($courses[5] == $course_array[2])){
 
             $courseCheck = true;
             echo "<br>Course match: ".$courses[0].", ".$courses[1]."<br>";
@@ -124,19 +150,23 @@
             $courseCheck = false;
           }
 
-          //
+          // Ends script if courseCheck == false by the end of the file, as the rest of the script relies on courseCheck returning true.
           if(feof($file_courses) && $courseCheck == false){
-            echo "Course not found. Make sure your input file has correct values.";
+            echo "Error: Course not found. Make sure your input file has correct values.";
+            die;
           }
         } // End while
 
-        // Why am I not implementing courseCheck here?
+        // Checks for duplicate course completion data and ends script if any duplicates are found.
         while (!feof($file_studTakes)){
           $studTakes = fgetcsv($file_studTakes);
           if ($newStudTakes == $studTakes){
             $STCheck = false;
             echo "Error: duplicate registration attempt. Course completion has already been registered.";
+            die;
           }
+
+          // If everything is fine, creates a new instance of StudTakes.
           if (feof($file_studTakes) && $STCheck == true && $courseCheck == true){
             require_once "class_studTakes.php";
             $newStudTakesIns = new StudTakes($newStudTakes[0], $newStudTakes[1], $newStudTakes[2], $newStudTakes[3]);

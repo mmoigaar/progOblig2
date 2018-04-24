@@ -61,10 +61,11 @@
       /*
 
       TO DO LIST:
-          * Add validation for accepted index values
+          * toLowerCase everything before validating. This also goes for recorded data.
+          * Check StudTakes class for useless code.
           * Make program work with any number of  lines in input file.
-          * Data page
-          * Dropdown to change entire table based on year?
+          * Finish commenting code.
+          * Dropdown to change entire table based on year? Probably not.
       */
       ?>
     </table>
